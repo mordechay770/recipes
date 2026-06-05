@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Редактор рецептов</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --honey:#C8883A;--honey-pale:#F5E6CF;--honey-tint:#FDF7EE;
+      --bark:#3B2010;--bark-mid:#6B3E1E;
+      --cream:#FFFBF3;--ink:#1E1208;--muted:#8A7060;
+      --line:#EBD9BE;--danger:#C0392B;--success:#2E7D32;
+    }
+    body{font-family:'DM Sans',sans-serif;background:#F0EBE0;color:var(--ink);min-height:100vh;display:flex;flex-direction:column}
+
+    /* LOGIN */
+    #loginScreen{
+      position:fixed;inset:0;background:var(--bark);z-index:999;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .login-box{background:var(--cream);border-radius:20px;padding:48px 40px;width:360px;text-align:center}
+    .login-icon{font-size:48px;margin-bottom:16px}
+    .login-title{font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--bark);margin-bottom:6px}
+    .login-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+    .login-input{
+      width:100%;padding:12px 16px;border:1.5px solid var(--line);border-radius:10px;
+      font-size:15px;font-family:inherit;outline:none;background:var(--cream);
+      transition:border-color .2s;margin-bottom:12px;
+    }
+    .login-input:focus{border-color:var(--honey)}
+    .btn-login{
+      width:100%;padding:13px;background:var(--bark);color:#fff;border:none;
+      border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;
+      transition:background .2s;
+    }
+    .btn-login:hover{background:var(--honey)}
+    .login-err{color:var(--danger);font-size:13px;margin-top:10px;display:none}
+
+    /* LAYOUT */
+    header{
+      background:var(--cream);border-bottom:1px solid var(--line);
+      padding:16px 36px;display:flex;align-items:center;justify-content:space-between;
+    }
+    .logo{font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:var(--bark)}
+    .logo em{font-style:italic;color:var(--honey)}
+    .header-actions{display:flex;gap:12px;align-items:center}
+    .btn-view{
+      padding:8px 18px;border:1.5px solid var(--line);border-radius:100px;
+      font-size:13px;color:var(--bark-mid);text-decoration:none;transition:border-color .2s;
+    }
+    .btn-view:hover{border-color:var(--honey)}
+    .btn-logout{
+      padding:8px 16px;background:none;border:none;font-size:13px;
+      color:var(--muted);cursor:pointer;font-family:inherit;
+    }
+
+    main{display:grid;grid-template-columns:320px 1fr;flex:1;min-height:calc(100vh - 65px)}
+
+    /* SIDEBAR */
+    aside{
+      background:var(--cream);border-right:1px solid var(--line);
+      padding:24px;display:flex;flex-direction:column;gap:8px;
+    }
+    .sidebar-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500;margin:8px 0 4px;padding:0 8px}
+    .recipe-item{
+      padding:12px 16px;border-radius:12px;cursor:pointer;
+      border:1.5px solid transparent;transition:all .2s;
+    }
+    .recipe-item:hover{background:var(--honey-tint);border-color:var(--honey-pale)}
+    .recipe-item.active{background:var(--honey-tint);border-color:var(--honey)}
+    .ri-title{font-weight:500;font-size:14px;color:var(--bark)}
+    .ri-meta{font-size:12px;color:var(--muted);margin-top:2px}
+    .ri-status{display:inline-block;font-size:10px;padding:2px 8px;border-radius:100px;margin-top:4px}
+    .status-published{background:#E8F5E9;color:#2E7D32}
+    .status-draft{background:var(--honey-pale);color:var(--bark-mid)}
+    .status-pending{background:#FFF3E0;color:#E65100}
+    .btn-new{
+      margin-top:8px;padding:11px;border:1.5px dashed var(--line);
+      border-radius:12px;background:none;cursor:pointer;font-family:inherit;
+      font-size:13px;color:var(--muted);transition:all .2s;
+    }
+    .btn-new:hover{border-color:var(--honey);color:var(--honey)}
+
+    /* EDITOR */
+    .editor{padding:32px 40px;overflow-y:auto}
+    .editor-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px}
+    .editor-title{font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--bark)}
+    .editor-actions{display:flex;gap:10px;flex-shrink:0}
+    .btn-save{
+      padding:10px 22px;background:var(--bark);color:#fff;border:none;
+      border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;
+      transition:background .2s;
+    }
+    .btn-save:hover{background:var(--honey)}
+    .btn-publish{
+      padding:10px 22px;background:var(--success);color:#fff;border:none;
+      border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;
+    }
+    .btn-delete{
+      padding:10px 18px;border:1.5px solid var(--line);background:none;
+      border-radius:100px;font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;
+      transition:border-color .2s,color .2s;
+    }
+    .btn-delete:hover{border-color:var(--danger);color:var(--danger)}
+
+    .form-section{
+      background:var(--cream);border-radius:16px;padding:28px;
+      margin-bottom:20px;border:1px solid var(--line);
+    }
+    .form-section-title{
+      font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+      color:var(--honey);font-weight:500;margin-bottom:20px;
+    }
+    .field{margin-bottom:16px}
+    .field label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+    .field input,.field textarea,.field select{
+      width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;
+      font-size:14px;font-family:inherit;background:var(--honey-tint);color:var(--ink);
+      outline:none;transition:border-color .2s;
+    }
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--honey)}
+    .field textarea{resize:vertical;min-height:100px}
+    .field-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+    /* INGREDIENT EDITOR */
+    .ing-row{
+      display:grid;grid-template-columns:1fr 100px 120px auto;gap:8px;
+      align-items:center;margin-bottom:8px;
+    }
+    .ing-row input{
+      padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;
+      font-size:13px;font-family:inherit;background:var(--honey-tint);
+      outline:none;transition:border-color .2s;
+    }
+    .ing-row input:focus{border-color:var(--honey)}
+    .btn-remove-ing{
+      width:32px;height:32px;border:1.5px solid var(--line);border-radius:8px;
+      background:none;cursor:pointer;color:var(--muted);font-size:16px;
+      display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;
+    }
+    .btn-remove-ing:hover{border-color:var(--danger);color:var(--danger)}
+    .btn-add-ing{
+      margin-top:8px;padding:9px 16px;border:1.5px dashed var(--line);border-radius:8px;
+      background:none;cursor:pointer;font-size:13px;color:var(--muted);font-family:inherit;
+      transition:all .2s;
+    }
+    .btn-add-ing:hover{border-color:var(--honey);color:var(--honey)}
+
+    .toast{
+      position:fixed;bottom:24px;right:24px;
+      background:var(--bark);color:#fff;padding:12px 20px;
+      border-radius:12px;font-size:14px;font-weight:500;
+      transform:translateY(80px);opacity:0;transition:all .3s;z-index:100;
+    }
+    .toast.show{transform:translateY(0);opacity:1}
+    .ing-labels{
+      display:grid;grid-template-columns:1fr 100px 120px 32px;gap:8px;
+      font-size:11px;text-transform:uppercase;letter-spacing:.07em;
+      color:var(--muted);margin-bottom:6px;
+    }
+
+    @media(max-width:900px){
+      main{grid-template-columns:1fr}
+      aside{display:none}
+      .editor{padding:20px}
+      .field-row{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-icon">📖</div>
+    <div class="login-title">Редактор рецептов</div>
+    <div class="login-sub">Введите пароль для входа</div>
+    <input type="password" class="login-input" id="loginPwd" placeholder="Пароль" onkeydown="if(e.key==='Enter')doLogin()" />
+    <button class="btn-login" onclick="doLogin()">Войти</button>
+    <div class="login-err" id="loginErr">Неверный пароль</div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">Редактор <em>рецептов</em></div>
+  <div class="header-actions">
+    <a href="index.html" class="btn-view" target="_blank">👁 Смотреть сайт</a>
+    <button class="btn-logout" onclick="logout()">Выйти</button>
+  </div>
+</header>
+
+<main>
+  <aside>
+    <div class="sidebar-label">Опубликованы</div>
+    <div class="recipe-item active" onclick="loadRecipe('challah')">
+      <div class="ri-title">🍞 Хала</div>
+      <div class="ri-meta">Шаббат · Выпечка</div>
+      <span class="ri-status status-published">Опубликован</span>
+    </div>
+
+    <div class="sidebar-label">Черновики</div>
+    <div class="recipe-item" onclick="loadRecipe('latkes')">
+      <div class="ri-title">🥞 Латкес</div>
+      <div class="ri-meta">Ханука · Картофель</div>
+      <span class="ri-status status-draft">Черновик</span>
+    </div>
+
+    <div class="sidebar-label">На проверке</div>
+    <div class="recipe-item" onclick="alert('Рецепт от Рахели А. — просмотр в разработке')">
+      <div class="ri-title">🥩 Чолнт</div>
+      <div class="ri-meta">От: Рахель А.</div>
+      <span class="ri-status status-pending">От читателя</span>
+    </div>
+
+    <button class="btn-new" onclick="newRecipe()">+ Новый рецепт</button>
+  </aside>
+
+  <div class="editor">
+    <div class="editor-header">
+      <div class="editor-title" id="editorTitle">🍞 Хала</div>
+      <div class="editor-actions">
+        <button class="btn-delete" onclick="confirmDelete()">Удалить</button>
+        <button class="btn-save" onclick="saveRecipe()">Сохранить</button>
+        <button class="btn-publish" onclick="publishRecipe()">✓ Опубликовать</button>
+      </div>
+    </div>
+
+    <!-- BASIC INFO -->
+    <div class="form-section">
+      <div class="form-section-title">📝 Основная информация</div>
+      <div class="field">
+        <label>Название рецепта</label>
+        <input id="f_title" value="Пышная Хала" />
+      </div>
+      <div class="field">
+        <label>Описание</label>
+        <textarea id="f_desc">Мягкая, воздушная хала с золотистой корочкой. По этому рецепту пекли наши бабушки — простые ингредиенты, немного терпения и много любви.</textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Категория</label>
+          <select id="f_cat">
+            <option>Выпечка</option>
+            <option>Мясные</option>
+            <option>Молочные</option>
+            <option>Парeve</option>
+            <option>Закуски</option>
+            <option>Праздничные</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Кашрут</label>
+          <select id="f_kosher">
+            <option>Пареве</option>
+            <option>Мясное</option>
+            <option>Молочное</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Повод</label>
+          <input id="f_occasion" value="Шаббат" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Время (мин)</label><input id="f_time" type="number" value="180" /></div>
+        <div class="field"><label>Порций</label><input id="f_servings" type="number" value="12" /></div>
+        <div class="field"><label>Выход</label><input id="f_yield" value="2 халы" /></div>
+      </div>
+    </div>
+
+    <!-- INGREDIENTS -->
+    <div class="form-section">
+      <div class="form-section-title">🌾 Ингредиенты</div>
+      <div class="ing-labels">
+        <div>Ингредиент</div><div>Количество</div><div>Категория покупки</div><div></div>
+      </div>
+      <div id="ing-list">
+        <div class="ing-row">
+          <input value="Мука пшеничная (в/с)" placeholder="Ингредиент" />
+          <input value="700 г" placeholder="Кол-во" />
+          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none">
+            <option value="flour">Мука</option><option value="dairy">Молочное</option>
+            <option value="eggs">Яйца</option><option value="oil">Масло/жиры</option>
+            <option value="spice">Специи</option><option value="other">Другое</option>
+          </select>
+          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
+        </div>
+        <div class="ing-row">
+          <input value="Дрожжи сухие" /><input value="10 г" />
+          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none"><option value="yeast">Дрожжи</option><option value="flour">Мука</option></select>
+          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
+        </div>
+        <div class="ing-row">
+          <input value="Сахар" /><input value="60 г" />
+          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none"><option value="sugar">Сахар</option></select>
+          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
+        </div>
+        <div class="ing-row">
+          <input value="Яйца" /><input value="3 шт" />
+          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none"><option value="eggs">Яйца</option></select>
+          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
+        </div>
+        <div class="ing-row">
+          <input value="Масло растительное" /><input value="80 мл" />
+          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none"><option value="oil">Масло/жиры</option></select>
+          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
+        </div>
+      </div>
+      <button class="btn-add-ing" onclick="addIng()">+ Добавить ингредиент</button>
+    </div>
+
+    <!-- STEPS -->
+    <div class="form-section">
+      <div class="form-section-title">📋 Шаги приготовления</div>
+      <div class="field">
+        <label>Шаги (каждый с новой строки)</label>
+        <textarea id="f_steps" style="min-height:200px">Опара. Растворите дрожжи и 1 ч.л. сахара в тёплой воде. Оставьте на 10 минут до появления пены.
+Тесто. Смешайте муку, соль, сахар. Добавьте опару, 2 яйца и масло. Вымешивайте 10 минут.
+Подъём. Накройте тесто плёнкой. Оставьте в тёплом месте на 1.5–2 часа.
+Плетение. Разделите тесто на 6 частей. Сплетите по 3 жгута в косу.
+Расстойка. Оставьте ещё на 40 минут. Смажьте яйцом, посыпьте кунжутом.
+Выпечка. Духовка 180°С, 25–30 минут до золотистой корочки.</textarea>
+      </div>
+    </div>
+
+    <!-- WHERE TO BUY -->
+    <div class="form-section">
+      <div class="form-section-title">🏪 Где купить (магазины)</div>
+      <div class="field">
+        <label>Список магазинов (для всех ингредиентов)</label>
+        <textarea id="f_stores" style="min-height:80px">Магазин «Мизрахи» — ул. Назарбаева, 44 — Кошер
+Green Mall — пр. Достык, 111 — Супермаркет
+Magnum — ул. Байтурсынова, 141 — Супермаркет
+Рынок Зелёный базар — ул. Зенкова, 59 — Рынок</textarea>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast" id="toast">✓ Сохранено</div>
+
+<script>
+const PWD = 'recipes2026';
+
+function doLogin(){
+  if(document.getElementById('loginPwd').value === PWD){
+    document.getElementById('loginScreen').style.display='none';
+  } else {
+    document.getElementById('loginErr').style.display='block';
+    document.getElementById('loginPwd').value='';
+  }
+}
+document.getElementById('loginPwd').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+function logout(){ document.getElementById('loginScreen').style.display='flex'; }
+
+function showToast(msg='✓ Сохранено'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+function saveRecipe(){ showToast('✓ Черновик сохранён'); }
+function publishRecipe(){ showToast('🚀 Рецепт опубликован!'); }
+function confirmDelete(){ if(confirm('Удалить рецепт?')) showToast('🗑 Удалено'); }
+
+function addIng(){
+  const div = document.createElement('div');
+  div.className = 'ing-row';
+  div.innerHTML = `<input placeholder="Ингредиент"/><input placeholder="Кол-во"/>
+    <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none">
+      <option value="other">Другое</option><option value="flour">Мука</option>
+      <option value="eggs">Яйца</option><option value="oil">Масло</option>
+      <option value="spice">Специи</option>
+    </select>
+    <button class="btn-remove-ing" onclick="removeIng(this)">×</button>`;
+  document.getElementById('ing-list').appendChild(div);
+  div.querySelector('input').focus();
+}
+function removeIng(btn){ btn.closest('.ing-row').remove(); }
+
+function newRecipe(){
+  document.getElementById('editorTitle').textContent = '✨ Новый рецепт';
+  document.getElementById('f_title').value = '';
+  document.getElementById('f_desc').value = '';
+  document.getElementById('f_steps').value = '';
+  document.getElementById('ing-list').innerHTML = '';
+  addIng();
+  document.querySelectorAll('.recipe-item').forEach(el=>el.classList.remove('active'));
+}
+
+function loadRecipe(key){
+  document.querySelectorAll('.recipe-item').forEach(el=>el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  if(key==='latkes'){
+    document.getElementById('editorTitle').textContent = '🥞 Латкес';
+    document.getElementById('f_title').value = 'Хрустящие латкес';
+    document.getElementById('f_desc').value = 'Картофельные оладьи на Хануку — хрустящие снаружи, мягкие внутри.';
+    document.getElementById('f_steps').value = 'Натрите картофель и лук на крупной тёрке.\nОтожмите лишнюю жидкость.\nДобавьте яйца, муку, соль.\nЖарьте на масле до золотистого цвета.';
+  }
+}
+</script>
+</body>
+</html>
