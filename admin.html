@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta name="robots" content="noindex,nofollow"/>
   <title>Редактор рецептов</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -18,12 +19,12 @@
     /* LOGIN */
     #loginScreen{
       position:fixed;inset:0;background:var(--bark);z-index:999;
-      display:flex;align-items:center;justify-content:center;
+      display:flex;align-items:center;justify-content:center;padding:20px;
     }
-    .login-box{background:var(--cream);border-radius:20px;padding:48px 40px;width:360px;text-align:center}
+    .login-box{background:var(--cream);border-radius:20px;padding:48px 40px;width:380px;max-width:100%;text-align:center}
     .login-icon{font-size:48px;margin-bottom:16px}
     .login-title{font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--bark);margin-bottom:6px}
-    .login-sub{font-size:13px;color:var(--muted);margin-bottom:28px}
+    .login-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.5}
     .login-input{
       width:100%;padding:12px 16px;border:1.5px solid var(--line);border-radius:10px;
       font-size:15px;font-family:inherit;outline:none;background:var(--cream);
@@ -35,17 +36,24 @@
       border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;
       transition:background .2s;
     }
-    .btn-login:hover{background:var(--honey)}
-    .login-err{color:var(--danger);font-size:13px;margin-top:10px;display:none}
+    .btn-login:hover:not(:disabled){background:var(--honey)}
+    .btn-login:disabled{opacity:.6;cursor:default}
+    .login-err{color:var(--danger);font-size:13px;margin-top:10px;display:none;line-height:1.5}
+    .mode-pill{
+      display:inline-block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+      padding:4px 10px;border-radius:100px;background:var(--honey-tint);
+      color:var(--bark-mid);border:1px solid var(--honey-pale);margin-bottom:18px;
+    }
 
     /* LAYOUT */
     header{
       background:var(--cream);border-bottom:1px solid var(--line);
-      padding:16px 36px;display:flex;align-items:center;justify-content:space-between;
+      padding:16px 36px;display:flex;align-items:center;justify-content:space-between;gap:16px;
     }
     .logo{font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:var(--bark)}
     .logo em{font-style:italic;color:var(--honey)}
     .header-actions{display:flex;gap:12px;align-items:center}
+    .who{font-size:12px;color:var(--muted)}
     .btn-view{
       padding:8px 18px;border:1.5px solid var(--line);border-radius:100px;
       font-size:13px;color:var(--bark-mid);text-decoration:none;transition:border-color .2s;
@@ -61,9 +69,10 @@
     /* SIDEBAR */
     aside{
       background:var(--cream);border-right:1px solid var(--line);
-      padding:24px;display:flex;flex-direction:column;gap:8px;
+      padding:24px;display:flex;flex-direction:column;gap:6px;
+      max-height:calc(100vh - 65px);overflow-y:auto;
     }
-    .sidebar-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500;margin:8px 0 4px;padding:0 8px}
+    .sidebar-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500;margin:14px 0 4px;padding:0 8px}
     .recipe-item{
       padding:12px 16px;border-radius:12px;cursor:pointer;
       border:1.5px solid transparent;transition:all .2s;
@@ -76,8 +85,11 @@
     .status-published{background:#E8F5E9;color:#2E7D32}
     .status-draft{background:var(--honey-pale);color:var(--bark-mid)}
     .status-pending{background:#FFF3E0;color:#E65100}
+    .status-approved{background:#E8F5E9;color:#2E7D32}
+    .status-rejected{background:#FBE9E7;color:#C0392B}
+    .empty-hint{font-size:12px;color:var(--muted);padding:8px 16px;font-style:italic}
     .btn-new{
-      margin-top:8px;padding:11px;border:1.5px dashed var(--line);
+      margin-top:16px;padding:11px;border:1.5px dashed var(--line);
       border-radius:12px;background:none;cursor:pointer;font-family:inherit;
       font-size:13px;color:var(--muted);transition:all .2s;
     }
@@ -85,17 +97,22 @@
 
     /* EDITOR */
     .editor{padding:32px 40px;overflow-y:auto}
-    .editor-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px}
+    .editor-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
     .editor-title{font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--bark)}
-    .editor-actions{display:flex;gap:10px;flex-shrink:0}
+    .editor-sub{font-size:12px;color:var(--muted);margin-top:4px}
+    .editor-actions{display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap}
     .btn-save{
       padding:10px 22px;background:var(--bark);color:#fff;border:none;
       border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;
       transition:background .2s;
     }
-    .btn-save:hover{background:var(--honey)}
+    .btn-save:hover:not(:disabled){background:var(--honey)}
     .btn-publish{
       padding:10px 22px;background:var(--success);color:#fff;border:none;
+      border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;
+    }
+    .btn-unpublish{
+      padding:10px 22px;background:var(--bark-mid);color:#fff;border:none;
       border-radius:100px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;
     }
     .btn-delete{
@@ -104,6 +121,7 @@
       transition:border-color .2s,color .2s;
     }
     .btn-delete:hover{border-color:var(--danger);color:var(--danger)}
+    button:disabled{opacity:.55;cursor:default}
 
     .form-section{
       background:var(--cream);border-radius:16px;padding:28px;
@@ -123,18 +141,21 @@
     .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--honey)}
     .field textarea{resize:vertical;min-height:100px}
     .field-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .field-hint{font-size:11px;color:var(--muted);margin-top:5px;font-style:italic}
+    .check-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--bark)}
+    .check-row input{width:auto}
 
     /* INGREDIENT EDITOR */
     .ing-row{
-      display:grid;grid-template-columns:1fr 100px 120px auto;gap:8px;
+      display:grid;grid-template-columns:1fr 110px 140px auto;gap:8px;
       align-items:center;margin-bottom:8px;
     }
-    .ing-row input{
+    .ing-row input,.ing-row select{
       padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;
-      font-size:13px;font-family:inherit;background:var(--honey-tint);
-      outline:none;transition:border-color .2s;
+      font-size:13px;font-family:inherit;background:var(--honey-tint);color:var(--ink);
+      outline:none;transition:border-color .2s;width:100%;
     }
-    .ing-row input:focus{border-color:var(--honey)}
+    .ing-row input:focus,.ing-row select:focus{border-color:var(--honey)}
     .btn-remove-ing{
       width:32px;height:32px;border:1.5px solid var(--line);border-radius:8px;
       background:none;cursor:pointer;color:var(--muted);font-size:16px;
@@ -147,25 +168,43 @@
       transition:all .2s;
     }
     .btn-add-ing:hover{border-color:var(--honey);color:var(--honey)}
+    .ing-labels{
+      display:grid;grid-template-columns:1fr 110px 140px 32px;gap:8px;
+      font-size:11px;text-transform:uppercase;letter-spacing:.07em;
+      color:var(--muted);margin-bottom:6px;
+    }
+
+    /* SUBMISSION VIEW */
+    .sub-body{
+      background:var(--honey-tint);border:1px solid var(--honey-pale);border-radius:12px;
+      padding:18px;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--bark-mid);
+    }
+    .sub-meta{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:18px;font-size:13px;color:var(--muted)}
+    .sub-meta b{color:var(--bark);font-weight:500}
 
     .toast{
       position:fixed;bottom:24px;right:24px;
       background:var(--bark);color:#fff;padding:12px 20px;
       border-radius:12px;font-size:14px;font-weight:500;
       transform:translateY(80px);opacity:0;transition:all .3s;z-index:100;
+      max-width:420px;
     }
     .toast.show{transform:translateY(0);opacity:1}
-    .ing-labels{
-      display:grid;grid-template-columns:1fr 100px 120px 32px;gap:8px;
-      font-size:11px;text-transform:uppercase;letter-spacing:.07em;
-      color:var(--muted);margin-bottom:6px;
+    .toast.err{background:var(--danger)}
+
+    .banner{
+      background:var(--honey-tint);border-bottom:1px solid var(--honey-pale);
+      padding:10px 36px;font-size:12px;color:var(--bark-mid);text-align:center;
     }
+    .banner a{color:var(--honey)}
 
     @media(max-width:900px){
       main{grid-template-columns:1fr}
-      aside{display:none}
+      aside{max-height:none;border-right:none;border-bottom:1px solid var(--line)}
       .editor{padding:20px}
       .field-row{grid-template-columns:1fr 1fr}
+      .ing-row{grid-template-columns:1fr 1fr;gap:6px}
+      .ing-labels{display:none}
     }
   </style>
 </head>
@@ -176,231 +215,467 @@
   <div class="login-box">
     <div class="login-icon">📖</div>
     <div class="login-title">Редактор рецептов</div>
-    <div class="login-sub">Введите пароль для входа</div>
-    <input type="password" class="login-input" id="loginPwd" placeholder="Пароль" onkeydown="if(e.key==='Enter')doLogin()" />
-    <button class="btn-login" onclick="doLogin()">Войти</button>
-    <div class="login-err" id="loginErr">Неверный пароль</div>
+    <div class="mode-pill" id="modePill">…</div>
+    <div class="login-sub" id="loginSub">Введите пароль для входа</div>
+    <input type="email" class="login-input" id="loginEmail" placeholder="Email" autocomplete="username" style="display:none" />
+    <input type="password" class="login-input" id="loginPwd" placeholder="Пароль" autocomplete="current-password" />
+    <button class="btn-login" id="btnLogin">Войти</button>
+    <div class="login-err" id="loginErr"></div>
   </div>
 </div>
 
 <header>
   <div class="logo">Редактор <em>рецептов</em></div>
   <div class="header-actions">
-    <a href="index.html" class="btn-view" target="_blank">👁 Смотреть сайт</a>
-    <button class="btn-logout" onclick="logout()">Выйти</button>
+    <span class="who" id="who"></span>
+    <a href="index.html" class="btn-view" target="_blank" rel="noopener">👁 Смотреть сайт</a>
+    <button class="btn-logout" id="btnLogout">Выйти</button>
   </div>
 </header>
 
+<div class="banner" id="demoBanner" style="display:none">
+  🧪 Демо-режим — Supabase не подключён. Изменения сохраняются только в этом браузере.
+  Заполните <code>config.js</code>, чтобы включить общую базу.
+</div>
+
 <main>
-  <aside>
-    <div class="sidebar-label">Опубликованы</div>
-    <div class="recipe-item active" onclick="loadRecipe('challah')">
-      <div class="ri-title">🍞 Хала</div>
-      <div class="ri-meta">Шаббат · Выпечка</div>
-      <span class="ri-status status-published">Опубликован</span>
-    </div>
+  <aside id="sidebar"></aside>
 
-    <div class="sidebar-label">Черновики</div>
-    <div class="recipe-item" onclick="loadRecipe('latkes')">
-      <div class="ri-title">🥞 Латкес</div>
-      <div class="ri-meta">Ханука · Картофель</div>
-      <span class="ri-status status-draft">Черновик</span>
-    </div>
-
-    <div class="sidebar-label">На проверке</div>
-    <div class="recipe-item" onclick="alert('Рецепт от Рахели А. — просмотр в разработке')">
-      <div class="ri-title">🥩 Чолнт</div>
-      <div class="ri-meta">От: Рахель А.</div>
-      <span class="ri-status status-pending">От читателя</span>
-    </div>
-
-    <button class="btn-new" onclick="newRecipe()">+ Новый рецепт</button>
-  </aside>
-
-  <div class="editor">
-    <div class="editor-header">
-      <div class="editor-title" id="editorTitle">🍞 Хала</div>
-      <div class="editor-actions">
-        <button class="btn-delete" onclick="confirmDelete()">Удалить</button>
-        <button class="btn-save" onclick="saveRecipe()">Сохранить</button>
-        <button class="btn-publish" onclick="publishRecipe()">✓ Опубликовать</button>
-      </div>
-    </div>
-
-    <!-- BASIC INFO -->
-    <div class="form-section">
-      <div class="form-section-title">📝 Основная информация</div>
-      <div class="field">
-        <label>Название рецепта</label>
-        <input id="f_title" value="Пышная Хала" />
-      </div>
-      <div class="field">
-        <label>Описание</label>
-        <textarea id="f_desc">Мягкая, воздушная хала с золотистой корочкой. По этому рецепту пекли наши бабушки — простые ингредиенты, немного терпения и много любви.</textarea>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Категория</label>
-          <select id="f_cat">
-            <option>Выпечка</option>
-            <option>Мясные</option>
-            <option>Молочные</option>
-            <option>Парeve</option>
-            <option>Закуски</option>
-            <option>Праздничные</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Кашрут</label>
-          <select id="f_kosher">
-            <option>Пареве</option>
-            <option>Мясное</option>
-            <option>Молочное</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Повод</label>
-          <input id="f_occasion" value="Шаббат" />
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field"><label>Время (мин)</label><input id="f_time" type="number" value="180" /></div>
-        <div class="field"><label>Порций</label><input id="f_servings" type="number" value="12" /></div>
-        <div class="field"><label>Выход</label><input id="f_yield" value="2 халы" /></div>
-      </div>
-    </div>
-
-    <!-- INGREDIENTS -->
-    <div class="form-section">
-      <div class="form-section-title">🌾 Ингредиенты</div>
-      <div class="ing-labels">
-        <div>Ингредиент</div><div>Количество</div><div>Категория покупки</div><div></div>
-      </div>
-      <div id="ing-list">
-        <div class="ing-row">
-          <input value="Мука пшеничная (в/с)" placeholder="Ингредиент" />
-          <input value="700 г" placeholder="Кол-во" />
-          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none">
-            <option value="flour">Мука</option><option value="dairy">Молочное</option>
-            <option value="eggs">Яйца</option><option value="oil">Масло/жиры</option>
-            <option value="spice">Специи</option><option value="other">Другое</option>
-          </select>
-          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
-        </div>
-        <div class="ing-row">
-          <input value="Дрожжи сухие" /><input value="10 г" />
-          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none"><option value="yeast">Дрожжи</option><option value="flour">Мука</option></select>
-          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
-        </div>
-        <div class="ing-row">
-          <input value="Сахар" /><input value="60 г" />
-          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none"><option value="sugar">Сахар</option></select>
-          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
-        </div>
-        <div class="ing-row">
-          <input value="Яйца" /><input value="3 шт" />
-          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none"><option value="eggs">Яйца</option></select>
-          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
-        </div>
-        <div class="ing-row">
-          <input value="Масло растительное" /><input value="80 мл" />
-          <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none"><option value="oil">Масло/жиры</option></select>
-          <button class="btn-remove-ing" onclick="removeIng(this)">×</button>
-        </div>
-      </div>
-      <button class="btn-add-ing" onclick="addIng()">+ Добавить ингредиент</button>
-    </div>
-
-    <!-- STEPS -->
-    <div class="form-section">
-      <div class="form-section-title">📋 Шаги приготовления</div>
-      <div class="field">
-        <label>Шаги (каждый с новой строки)</label>
-        <textarea id="f_steps" style="min-height:200px">Опара. Растворите дрожжи и 1 ч.л. сахара в тёплой воде. Оставьте на 10 минут до появления пены.
-Тесто. Смешайте муку, соль, сахар. Добавьте опару, 2 яйца и масло. Вымешивайте 10 минут.
-Подъём. Накройте тесто плёнкой. Оставьте в тёплом месте на 1.5–2 часа.
-Плетение. Разделите тесто на 6 частей. Сплетите по 3 жгута в косу.
-Расстойка. Оставьте ещё на 40 минут. Смажьте яйцом, посыпьте кунжутом.
-Выпечка. Духовка 180°С, 25–30 минут до золотистой корочки.</textarea>
-      </div>
-    </div>
-
-    <!-- WHERE TO BUY -->
-    <div class="form-section">
-      <div class="form-section-title">🏪 Где купить (магазины)</div>
-      <div class="field">
-        <label>Список магазинов (для всех ингредиентов)</label>
-        <textarea id="f_stores" style="min-height:80px">Магазин «Мизрахи» — ул. Назарбаева, 44 — Кошер
-Green Mall — пр. Достык, 111 — Супермаркет
-Magnum — ул. Байтурсынова, 141 — Супермаркет
-Рынок Зелёный базар — ул. Зенкова, 59 — Рынок</textarea>
-      </div>
-    </div>
-
-  </div>
+  <div class="editor" id="editor"></div>
 </main>
 
-<div class="toast" id="toast">✓ Сохранено</div>
+<div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="js/demo-data.js"></script>
+<script src="js/db.js"></script>
 <script>
-const PWD = 'recipes2026';
+(function(){
+  'use strict';
 
-function doLogin(){
-  if(document.getElementById('loginPwd').value === PWD){
-    document.getElementById('loginScreen').style.display='none';
+  var ING_KEYS = [
+    { value: '',       label: '— не искать —' },
+    { value: 'flour',  label: 'Мука' },
+    { value: 'yeast',  label: 'Дрожжи' },
+    { value: 'sugar',  label: 'Сахар' },
+    { value: 'eggs',   label: 'Яйца' },
+    { value: 'oil',    label: 'Масло/жиры' },
+    { value: 'sesame', label: 'Кунжут/семена' },
+    { value: 'spice',  label: 'Специи' },
+    { value: 'dairy',  label: 'Молочное' },
+    { value: 'meat',   label: 'Мясное' },
+    { value: 'other',  label: 'Другое' },
+  ];
+  var CATEGORIES = ['Выпечка','Мясные','Молочные','Пареве','Закуски','Супы','Салаты','Десерты','Праздничные'];
+  var KOSHER = ['Пареве','Мясное','Молочное'];
+
+  var recipes = [];
+  var submissions = [];
+  var view = { type: 'recipe', id: null };   // type: 'recipe' | 'submission' | 'new'
+  var draft = null;                           // редактируемый рецепт
+
+  // ---------- helpers ----------
+  function esc(value){
+    return String(value == null ? '' : value)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function el(id){ return document.getElementById(id); }
+  function val(id){ var n = el(id); return n ? n.value : ''; }
+
+  var toastTimer = null;
+  function toast(msg, isError){
+    var t = el('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isError ? ' err' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.className = 'toast'; }, 3600);
+  }
+
+  function options(list, selected){
+    return list.map(function(item){
+      var v = typeof item === 'string' ? item : item.value;
+      var l = typeof item === 'string' ? item : item.label;
+      return '<option value="' + esc(v) + '"' + (v === selected ? ' selected' : '') + '>' + esc(l) + '</option>';
+    }).join('');
+  }
+
+  function blankRecipe(){
+    return {
+      id: null, slug: '', title: '', emoji: '🍽', description: '',
+      category: 'Выпечка', kosher: 'Пареве', occasion: '',
+      time_minutes: 60, servings: 4, yield_text: '',
+      ingredients: [{ name: '', qty: '', key: '' }], steps: [],
+      status: 'draft', featured: false, author: '',
+    };
+  }
+
+  // ---------- SIDEBAR ----------
+  function renderSidebar(){
+    var published = recipes.filter(function(r){ return r.status === 'published'; });
+    var drafts    = recipes.filter(function(r){ return r.status !== 'published'; });
+    var pending   = submissions.filter(function(s){ return s.status === 'pending'; });
+    var handled   = submissions.filter(function(s){ return s.status !== 'pending'; });
+
+    function recipeItem(r){
+      var active = view.type === 'recipe' && view.id === r.id;
+      return '<div class="recipe-item' + (active ? ' active' : '') + '" data-kind="recipe" data-id="' + esc(r.id) + '">' +
+               '<div class="ri-title">' + esc(r.emoji) + ' ' + esc(r.title) + '</div>' +
+               '<div class="ri-meta">' + esc([r.occasion, r.category].filter(Boolean).join(' · ')) + '</div>' +
+               '<span class="ri-status status-' + (r.status === 'published' ? 'published' : 'draft') + '">' +
+                 (r.status === 'published' ? 'Опубликован' : 'Черновик') +
+               '</span>' +
+             '</div>';
+    }
+
+    function subItem(s){
+      var active = view.type === 'submission' && view.id === s.id;
+      var cls = s.status === 'pending' ? 'pending' : (s.status === 'approved' ? 'approved' : 'rejected');
+      var label = s.status === 'pending' ? 'От читателя' : (s.status === 'approved' ? 'Принят' : 'Отклонён');
+      return '<div class="recipe-item' + (active ? ' active' : '') + '" data-kind="submission" data-id="' + esc(s.id) + '">' +
+               '<div class="ri-title">✉️ ' + esc(s.title) + '</div>' +
+               '<div class="ri-meta">От: ' + esc(s.name || 'аноним') + '</div>' +
+               '<span class="ri-status status-' + cls + '">' + label + '</span>' +
+             '</div>';
+    }
+
+    el('sidebar').innerHTML =
+      '<div class="sidebar-label">Опубликованы (' + published.length + ')</div>' +
+      (published.map(recipeItem).join('') || '<div class="empty-hint">пока пусто</div>') +
+      '<div class="sidebar-label">Черновики (' + drafts.length + ')</div>' +
+      (drafts.map(recipeItem).join('') || '<div class="empty-hint">пока пусто</div>') +
+      '<div class="sidebar-label">На проверке (' + pending.length + ')</div>' +
+      (pending.map(subItem).join('') || '<div class="empty-hint">новых заявок нет</div>') +
+      (handled.length ? '<div class="sidebar-label">Обработанные</div>' + handled.map(subItem).join('') : '') +
+      '<button class="btn-new" id="btnNew">+ Новый рецепт</button>';
+  }
+
+  // ---------- EDITOR: рецепт ----------
+  function ingRow(ing){
+    return '<div class="ing-row">' +
+             '<input class="ing-name" value="' + esc(ing.name) + '" placeholder="Ингредиент" />' +
+             '<input class="ing-qty" value="' + esc(ing.qty) + '" placeholder="Кол-во" />' +
+             '<select class="ing-key">' + options(ING_KEYS, ing.key || '') + '</select>' +
+             '<button class="btn-remove-ing" type="button" data-act="remove-ing">×</button>' +
+           '</div>';
+  }
+
+  function renderEditor(){
+    var r = draft;
+    var isNew = !r.id;
+
+    el('editor').innerHTML =
+      '<div class="editor-header">' +
+        '<div>' +
+          '<div class="editor-title">' + esc(r.emoji) + ' ' + esc(r.title || 'Новый рецепт') + '</div>' +
+          '<div class="editor-sub">' + (isNew ? 'ещё не сохранён' :
+            'Статус: ' + (r.status === 'published' ? 'опубликован' : 'черновик') +
+            ' · ссылка: <code>?r=' + esc(r.slug) + '</code>') + '</div>' +
+        '</div>' +
+        '<div class="editor-actions">' +
+          (isNew ? '' : '<button class="btn-delete" data-act="delete">Удалить</button>') +
+          '<button class="btn-save" data-act="save">Сохранить</button>' +
+          (r.status === 'published'
+            ? '<button class="btn-unpublish" data-act="unpublish">Снять с публикации</button>'
+            : '<button class="btn-publish" data-act="publish">✓ Опубликовать</button>') +
+        '</div>' +
+      '</div>' +
+
+      '<div class="form-section">' +
+        '<div class="form-section-title">📝 Основная информация</div>' +
+        '<div class="field-row" style="grid-template-columns:90px 1fr 1fr">' +
+          '<div class="field"><label>Эмодзи</label><input id="f_emoji" value="' + esc(r.emoji) + '" maxlength="4" /></div>' +
+          '<div class="field"><label>Название рецепта</label><input id="f_title" value="' + esc(r.title) + '" /></div>' +
+          '<div class="field"><label>Ссылка (slug)</label><input id="f_slug" value="' + esc(r.slug) + '" placeholder="оставьте пустым — создам сам" /></div>' +
+        '</div>' +
+        '<div class="field"><label>Описание</label><textarea id="f_desc">' + esc(r.description) + '</textarea></div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>Категория</label><select id="f_cat">' + options(CATEGORIES, r.category) + '</select></div>' +
+          '<div class="field"><label>Кашрут</label><select id="f_kosher">' + options(KOSHER, r.kosher) + '</select></div>' +
+          '<div class="field"><label>Повод</label><input id="f_occasion" value="' + esc(r.occasion) + '" /></div>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<div class="field"><label>Время (мин)</label><input id="f_time" type="number" min="0" value="' + esc(r.time_minutes) + '" /></div>' +
+          '<div class="field"><label>Порций</label><input id="f_servings" type="number" min="0" value="' + esc(r.servings) + '" /></div>' +
+          '<div class="field"><label>Выход</label><input id="f_yield" value="' + esc(r.yield_text) + '" /></div>' +
+        '</div>' +
+        '<div class="field-row" style="grid-template-columns:1fr 1fr">' +
+          '<div class="field"><label>Автор</label><input id="f_author" value="' + esc(r.author) + '" /></div>' +
+          '<div class="field"><label>Рецепт недели</label>' +
+            '<div class="check-row"><input type="checkbox" id="f_featured"' + (r.featured ? ' checked' : '') + ' />' +
+            '<span>Показывать первым на главной</span></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="form-section">' +
+        '<div class="form-section-title">🌾 Ингредиенты</div>' +
+        '<div class="ing-labels"><div>Ингредиент</div><div>Количество</div><div>Где купить</div><div></div></div>' +
+        '<div id="ing-list">' + (r.ingredients.length ? r.ingredients.map(ingRow).join('') : ingRow({name:'',qty:'',key:''})) + '</div>' +
+        '<button class="btn-add-ing" type="button" data-act="add-ing">+ Добавить ингредиент</button>' +
+        '<div class="field-hint">«Где купить» определяет, какие магазины покажутся посетителю по кнопке рядом с ингредиентом.</div>' +
+      '</div>' +
+
+      '<div class="form-section">' +
+        '<div class="form-section-title">📋 Шаги приготовления</div>' +
+        '<div class="field">' +
+          '<label>Шаги — каждый с новой строки</label>' +
+          '<textarea id="f_steps" style="min-height:220px">' + esc(r.steps.join('\n')) + '</textarea>' +
+          '<div class="field-hint">Если начать шаг словом с точкой («Опара. Растворите…»), оно выделится жирным на сайте.</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  /** Собирает форму обратно в объект рецепта. */
+  function collectForm(){
+    var ingredients = Array.prototype.map.call(document.querySelectorAll('#ing-list .ing-row'), function(row){
+      return {
+        name: row.querySelector('.ing-name').value.trim(),
+        qty: row.querySelector('.ing-qty').value.trim(),
+        key: row.querySelector('.ing-key').value,
+      };
+    }).filter(function(i){ return i.name; });
+
+    var steps = val('f_steps').split('\n')
+      .map(function(s){ return s.trim(); })
+      .filter(Boolean);
+
+    return {
+      id: draft.id,
+      slug: val('f_slug').trim() || DB.slugify(val('f_title')),
+      title: val('f_title').trim(),
+      emoji: val('f_emoji').trim() || '🍽',
+      description: val('f_desc').trim(),
+      category: val('f_cat'),
+      kosher: val('f_kosher'),
+      occasion: val('f_occasion').trim(),
+      time_minutes: Number(val('f_time')) || 0,
+      servings: Number(val('f_servings')) || 0,
+      yield_text: val('f_yield').trim(),
+      ingredients: ingredients,
+      steps: steps,
+      status: draft.status,
+      featured: el('f_featured').checked,
+      author: val('f_author').trim(),
+    };
+  }
+
+  // ---------- EDITOR: заявка от читателя ----------
+  function renderSubmission(sub){
+    var date = sub.created_at ? new Date(sub.created_at).toLocaleDateString('ru-RU') : '';
+    el('editor').innerHTML =
+      '<div class="editor-header">' +
+        '<div>' +
+          '<div class="editor-title">✉️ ' + esc(sub.title) + '</div>' +
+          '<div class="editor-sub">Заявка от читателя' + (date ? ' · ' + esc(date) : '') + '</div>' +
+        '</div>' +
+        '<div class="editor-actions">' +
+          (sub.status === 'pending'
+            ? '<button class="btn-delete" data-act="reject-sub">Отклонить</button>' +
+              '<button class="btn-publish" data-act="approve-sub">→ Создать рецепт</button>'
+            : '<span class="editor-sub">Обработана: ' +
+              (sub.status === 'approved' ? 'принята' : 'отклонена') + '</span>') +
+        '</div>' +
+      '</div>' +
+      '<div class="form-section">' +
+        '<div class="form-section-title">👤 Кто прислал</div>' +
+        '<div class="sub-meta">' +
+          '<div>Имя: <b>' + esc(sub.name || '—') + '</b></div>' +
+          '<div>Контакт: <b>' + esc(sub.contact || '—') + '</b></div>' +
+        '</div>' +
+        '<div class="form-section-title">🍲 Текст рецепта</div>' +
+        '<div class="sub-body">' + esc(sub.body || '—') + '</div>' +
+      '</div>';
+  }
+
+  // ---------- навигация ----------
+  function openRecipe(id){
+    var found = recipes.filter(function(r){ return String(r.id) === String(id); })[0];
+    if (!found) return;
+    view = { type: 'recipe', id: found.id };
+    draft = JSON.parse(JSON.stringify(found));
+    renderSidebar();
+    renderEditor();
+  }
+
+  function openNew(prefill){
+    view = { type: 'new', id: null };
+    draft = Object.assign(blankRecipe(), prefill || {});
+    renderSidebar();
+    renderEditor();
+  }
+
+  function openSubmission(id){
+    var found = submissions.filter(function(s){ return String(s.id) === String(id); })[0];
+    if (!found) return;
+    view = { type: 'submission', id: found.id };
+    draft = null;
+    renderSidebar();
+    renderSubmission(found);
+  }
+
+  function refresh(keepView){
+    return Promise.all([DB.listAll(), DB.listSubmissions()]).then(function(res){
+      recipes = res[0];
+      submissions = res[1];
+      renderSidebar();
+      if (!keepView) {
+        if (recipes.length) openRecipe(recipes[0].id);
+        else openNew();
+      }
+    }).catch(function(err){
+      toast('Ошибка загрузки: ' + err.message, true);
+    });
+  }
+
+  // ---------- действия ----------
+  function save(nextStatus){
+    var data = collectForm();
+    if (!data.title) { toast('Укажите название рецепта', true); return; }
+    if (nextStatus) data.status = nextStatus;
+
+    DB.saveRecipe(data).then(function(saved){
+      draft = saved;
+      view = { type: 'recipe', id: saved.id };
+      toast(nextStatus === 'published' ? '🚀 Рецепт опубликован' :
+            nextStatus === 'draft'     ? '↩ Снят с публикации' : '✓ Сохранено');
+      return refresh(true).then(function(){ renderEditor(); });
+    }).catch(function(err){
+      toast('Не удалось сохранить: ' + err.message, true);
+    });
+  }
+
+  function remove(){
+    if (!draft || !draft.id) return;
+    if (!confirm('Удалить рецепт «' + draft.title + '»? Действие необратимо.')) return;
+    DB.deleteRecipe(draft.id).then(function(){
+      toast('🗑 Рецепт удалён');
+      return refresh(false);
+    }).catch(function(err){
+      toast('Не удалось удалить: ' + err.message, true);
+    });
+  }
+
+  /** Заявка → черновик рецепта: текст письма кладём в шаги, автора — в поле «Автор». */
+  function approveSubmission(sub){
+    DB.updateSubmissionStatus(sub.id, 'approved').then(function(){
+      return refresh(true);
+    }).then(function(){
+      openNew({
+        title: sub.title,
+        author: sub.name || '',
+        description: (sub.body || '').split('\n')[0].slice(0, 200),
+        steps: (sub.body || '').split('\n').map(function(s){ return s.trim(); }).filter(Boolean),
+      });
+      toast('Заявка принята — доработайте черновик и опубликуйте');
+    }).catch(function(err){
+      toast('Ошибка: ' + err.message, true);
+    });
+  }
+
+  function rejectSubmission(sub){
+    if (!confirm('Отклонить заявку «' + sub.title + '»?')) return;
+    DB.updateSubmissionStatus(sub.id, 'rejected').then(function(){
+      toast('Заявка отклонена');
+      return refresh(true);
+    }).then(function(){
+      openSubmission(sub.id);
+    }).catch(function(err){
+      toast('Ошибка: ' + err.message, true);
+    });
+  }
+
+  // ---------- делегирование событий ----------
+  el('sidebar').addEventListener('click', function(e){
+    if (e.target.closest('#btnNew')) { openNew(); return; }
+    var item = e.target.closest('.recipe-item');
+    if (!item) return;
+    if (item.getAttribute('data-kind') === 'recipe') openRecipe(item.getAttribute('data-id'));
+    else openSubmission(item.getAttribute('data-id'));
+  });
+
+  el('editor').addEventListener('click', function(e){
+    var btn = e.target.closest('[data-act]');
+    if (!btn) return;
+    var act = btn.getAttribute('data-act');
+
+    if (act === 'save')      save(null);
+    if (act === 'publish')   save('published');
+    if (act === 'unpublish') save('draft');
+    if (act === 'delete')    remove();
+    if (act === 'add-ing') {
+      el('ing-list').insertAdjacentHTML('beforeend', ingRow({ name: '', qty: '', key: '' }));
+      var rows = el('ing-list').querySelectorAll('.ing-row');
+      rows[rows.length - 1].querySelector('.ing-name').focus();
+    }
+    if (act === 'remove-ing') btn.closest('.ing-row').remove();
+
+    if (act === 'approve-sub' || act === 'reject-sub') {
+      var sub = submissions.filter(function(s){ return String(s.id) === String(view.id); })[0];
+      if (!sub) return;
+      if (act === 'approve-sub') approveSubmission(sub);
+      else rejectSubmission(sub);
+    }
+  });
+
+  // ---------- вход ----------
+  function showApp(user){
+    el('loginScreen').style.display = 'none';
+    el('who').textContent = user && user.email ? user.email : '';
+    refresh(false);
+  }
+
+  function doLogin(){
+    var btn = el('btnLogin');
+    var err = el('loginErr');
+    err.style.display = 'none';
+    btn.disabled = true;
+
+    DB.auth.signIn(val('loginEmail').trim(), val('loginPwd')).then(function(user){
+      el('loginPwd').value = '';
+      showApp(user);
+    }).catch(function(e){
+      err.textContent = e.message === 'Invalid login credentials'
+        ? 'Неверный email или пароль'
+        : e.message;
+      err.style.display = 'block';
+      el('loginPwd').value = '';
+    }).then(function(){
+      btn.disabled = false;
+    });
+  }
+
+  el('btnLogin').addEventListener('click', doLogin);
+  ['loginEmail','loginPwd'].forEach(function(id){
+    el(id).addEventListener('keydown', function(e){ if (e.key === 'Enter') doLogin(); });
+  });
+  el('btnLogout').addEventListener('click', function(){
+    DB.auth.signOut().then(function(){ location.reload(); });
+  });
+
+  // ---------- старт ----------
+  if (DB.isDegraded) {
+    el('modePill').textContent = '⚠️ нет связи с базой';
+    el('loginSub').textContent = 'Библиотека Supabase не загрузилась. Доступны только демо-данные.';
+    el('demoBanner').innerHTML =
+      '⚠️ Ключи Supabase прописаны, но библиотека не загрузилась (CDN заблокирован или нет сети). ' +
+      'Изменения <b>не попадут</b> в общую базу — перезагрузите страницу позже.';
+    el('demoBanner').style.display = 'block';
+  } else if (DB.isDemo) {
+    el('modePill').textContent = '🧪 демо-режим';
+    el('loginSub').textContent = 'Supabase не подключён. Введите локальный пароль.';
+    el('demoBanner').style.display = 'block';
   } else {
-    document.getElementById('loginErr').style.display='block';
-    document.getElementById('loginPwd').value='';
+    el('modePill').textContent = '🔐 supabase';
+    el('loginSub').textContent = 'Войдите под учётной записью администратора.';
+    el('loginEmail').style.display = 'block';
   }
-}
-document.getElementById('loginPwd').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
-function logout(){ document.getElementById('loginScreen').style.display='flex'; }
 
-function showToast(msg='✓ Сохранено'){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2800);
-}
-
-function saveRecipe(){ showToast('✓ Черновик сохранён'); }
-function publishRecipe(){ showToast('🚀 Рецепт опубликован!'); }
-function confirmDelete(){ if(confirm('Удалить рецепт?')) showToast('🗑 Удалено'); }
-
-function addIng(){
-  const div = document.createElement('div');
-  div.className = 'ing-row';
-  div.innerHTML = `<input placeholder="Ингредиент"/><input placeholder="Кол-во"/>
-    <select style="padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;background:var(--honey-tint);outline:none">
-      <option value="other">Другое</option><option value="flour">Мука</option>
-      <option value="eggs">Яйца</option><option value="oil">Масло</option>
-      <option value="spice">Специи</option>
-    </select>
-    <button class="btn-remove-ing" onclick="removeIng(this)">×</button>`;
-  document.getElementById('ing-list').appendChild(div);
-  div.querySelector('input').focus();
-}
-function removeIng(btn){ btn.closest('.ing-row').remove(); }
-
-function newRecipe(){
-  document.getElementById('editorTitle').textContent = '✨ Новый рецепт';
-  document.getElementById('f_title').value = '';
-  document.getElementById('f_desc').value = '';
-  document.getElementById('f_steps').value = '';
-  document.getElementById('ing-list').innerHTML = '';
-  addIng();
-  document.querySelectorAll('.recipe-item').forEach(el=>el.classList.remove('active'));
-}
-
-function loadRecipe(key){
-  document.querySelectorAll('.recipe-item').forEach(el=>el.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  if(key==='latkes'){
-    document.getElementById('editorTitle').textContent = '🥞 Латкес';
-    document.getElementById('f_title').value = 'Хрустящие латкес';
-    document.getElementById('f_desc').value = 'Картофельные оладьи на Хануку — хрустящие снаружи, мягкие внутри.';
-    document.getElementById('f_steps').value = 'Натрите картофель и лук на крупной тёрке.\nОтожмите лишнюю жидкость.\nДобавьте яйца, муку, соль.\nЖарьте на масле до золотистого цвета.';
-  }
-}
+  DB.auth.currentUser().then(function(user){
+    if (user) showApp(user);
+  });
+})();
 </script>
 </body>
 </html>

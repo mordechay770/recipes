@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Кошерные рецепты — Алматы</title>
+  <meta name="description" content="Кошерные рецепты еврейской общины Алматы: хала, латкес, праздничные блюда. С указанием, где купить кошерные продукты."/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300;1,9..144,500&family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
@@ -85,7 +86,7 @@
       background:var(--honey-tint);border-radius:24px;
       padding:48px 40px;border:1px solid var(--honey-pale);
       display:flex;flex-direction:column;align-items:center;
-      position:relative;overflow:hidden;
+      position:relative;overflow:hidden;text-align:center;
     }
     .hero-visual::before{
       content:'';position:absolute;inset:0;
@@ -130,20 +131,22 @@
     .recipe-title{font-family:'Fraunces',serif;font-size:40px;font-weight:300;color:var(--bark);margin-bottom:8px;letter-spacing:-.02em;line-height:1.1}
     .recipe-title em{font-style:italic;color:var(--honey)}
     .recipe-desc{font-family:'Lora',serif;font-style:italic;color:var(--muted);font-size:16px;line-height:1.65;margin-bottom:28px}
-    .recipe-stats{display:flex;gap:28px;margin-bottom:32px}
+    .recipe-stats{display:flex;gap:28px;margin-bottom:8px;flex-wrap:wrap}
     .stat{text-align:center}
     .stat-val{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--bark)}
     .stat-key{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px}
+    .recipe-author{font-size:12px;color:var(--muted);margin-top:20px;font-style:italic;font-family:'Lora',serif}
 
     /* INGREDIENTS */
     .ingredients-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
     .ingredient{
-      display:flex;align-items:center;justify-content:space-between;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
       padding:10px 0;border-bottom:1px solid var(--line);
       font-size:14px;
     }
     .ingredient:last-child{border-bottom:none}
     .ing-name{font-weight:500;color:var(--ink);display:flex;align-items:center;gap:8px}
+    .ing-side{display:flex;gap:12px;align-items:center;flex-shrink:0}
     .ing-qty{color:var(--muted);font-size:13px}
     .ing-where{
       font-size:11px;padding:3px 10px;
@@ -177,6 +180,26 @@
       display:flex;align-items:center;gap:10px;
     }
 
+    /* RECIPE GRID */
+    .recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
+    .card{
+      background:var(--white);border:1px solid var(--line);border-radius:16px;
+      padding:24px;cursor:pointer;text-align:left;font-family:inherit;
+      transition:border-color .2s,transform .2s,box-shadow .2s;
+      display:flex;flex-direction:column;gap:8px;
+    }
+    .card:hover{border-color:var(--honey);transform:translateY(-3px);box-shadow:0 12px 30px -12px rgba(59,32,16,.18)}
+    .card.current{border-color:var(--honey);background:var(--honey-tint)}
+    .card-emoji{font-size:40px;line-height:1}
+    .card-title{font-family:'Fraunces',serif;font-size:19px;font-weight:500;color:var(--bark);line-height:1.2}
+    .card-meta{font-size:12px;color:var(--muted)}
+    .card-desc{font-size:13px;color:var(--bark-soft);line-height:1.5;font-family:'Lora',serif;font-style:italic}
+
+    .state-msg{
+      padding:36px;text-align:center;color:var(--muted);font-size:14px;
+      border:1.5px dashed var(--line);border-radius:16px;font-style:italic;font-family:'Lora',serif;
+    }
+
     /* WHERE TO BUY MODAL */
     .modal-overlay{
       position:fixed;inset:0;background:rgba(30,18,8,.5);z-index:200;
@@ -199,7 +222,7 @@
     .modal-product{font-size:13px;color:var(--muted);margin-bottom:24px;font-style:italic;font-family:'Lora',serif}
     .store-list{display:flex;flex-direction:column;gap:12px}
     .store{
-      display:flex;align-items:center;justify-content:space-between;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
       padding:14px 16px;border-radius:12px;
       background:var(--honey-tint);border:1px solid var(--honey-pale);
     }
@@ -226,7 +249,7 @@
     .form-input{
       padding:12px 16px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);
       background:rgba(255,255,255,.08);color:#fff;font-size:14px;font-family:inherit;
-      transition:border-color .2s;outline:none;
+      transition:border-color .2s;outline:none;width:100%;
     }
     .form-input::placeholder{color:rgba(255,255,255,.35)}
     .form-input:focus{border-color:var(--honey)}
@@ -236,8 +259,12 @@
       border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;
       font-family:inherit;transition:background .2s,transform .15s;
     }
-    .btn-send:hover{background:#D4963E;transform:translateY(-1px)}
+    .btn-send:hover:not(:disabled){background:#D4963E;transform:translateY(-1px)}
+    .btn-send:disabled{opacity:.55;cursor:default}
     .form-note{font-size:11px;opacity:.4;text-align:center}
+    .form-status{font-size:13px;text-align:center;min-height:18px;line-height:1.5}
+    .form-status.ok{color:#A5D6A7}
+    .form-status.err{color:#FFAB91}
 
     footer{
       border-top:1px solid var(--line);padding:32px 48px;
@@ -265,16 +292,15 @@
 </head>
 <body>
 
-<div class="demo-banner">
+<div class="demo-banner" id="demoBanner">
   🧪 <em>Концепт-проект</em> · Платформа кошерных рецептов Казахстана · В разработке
 </div>
 
 <header>
   <a href="https://src-sigma-ecru-25.vercel.app" class="nav-back">← Кухня</a>
-  <a class="logo" href="#">Кошер<em>ные</em> рецепты</a>
+  <a class="logo" href="index.html">Кошер<em>ные</em> рецепты</a>
   <nav class="nav-links">
-    <a href="#">Рецепты</a>
-    <a href="#">О проекте</a>
+    <a href="#recipes">Рецепты</a>
     <a href="#submit">Поделиться</a>
     <a href="admin.html" class="btn-submit">⚙️ Редактор</a>
   </nav>
@@ -290,136 +316,38 @@
       до праздничных блюд. Делитесь своими рецептами с общиной.
     </p>
     <div class="hero-actions">
-      <a href="#challah" class="btn-primary">🍞 Рецепт халы</a>
+      <a href="#recipe" class="btn-primary" id="heroCta">Смотреть рецепт</a>
       <a href="#submit" class="btn-ghost">Поделиться рецептом →</a>
     </div>
   </div>
   <div class="hero-visual">
-    <div class="bread-art">🍞</div>
-    <h2>Хала к Шаббату</h2>
-    <div class="tagline">Традиционный рецепт, проверенный поколениями</div>
+    <div class="bread-art" id="heroEmoji">🍞</div>
+    <h2 id="heroTitle">Кошерная кухня</h2>
+    <div class="tagline" id="heroTagline">Рецепты, проверенные поколениями</div>
   </div>
 </div>
 
 <!-- FEATURED RECIPE -->
-<section id="challah">
+<section id="recipe">
   <div class="section-head">
-    <div class="section-label">Рецепт недели</div>
-    <h2 class="section-title">Хала — <em>праздничный хлеб</em></h2>
+    <div class="section-label" id="recipeLabel">Рецепт недели</div>
+    <h2 class="section-title" id="recipeSectionTitle">Загрузка…</h2>
     <div class="divider"></div>
   </div>
 
-  <div class="recipe-featured">
-    <div class="recipe-img">🍞</div>
-    <div class="recipe-body">
-      <div>
-        <div class="recipe-meta">
-          <span class="meta-chip kosher">✡ Пареве</span>
-          <span class="meta-chip">Выпечка</span>
-          <span class="meta-chip">Шаббат</span>
-        </div>
-        <h3 class="recipe-title">Пышная<br><em>Хала</em></h3>
-        <p class="recipe-desc">
-          Мягкая, воздушная хала с золотистой корочкой. По этому рецепту пекли
-          наши бабушки — простые ингредиенты, немного терпения и много любви.
-        </p>
-        <div class="recipe-stats">
-          <div class="stat"><div class="stat-val">3 ч</div><div class="stat-key">Время</div></div>
-          <div class="stat"><div class="stat-val">2</div><div class="stat-key">Халы</div></div>
-          <div class="stat"><div class="stat-val">12</div><div class="stat-key">Порций</div></div>
-        </div>
-      </div>
-    </div>
+  <div id="recipeHost">
+    <div class="state-msg">Загружаем рецепты…</div>
   </div>
+</section>
 
-  <!-- INGREDIENTS + STEPS -->
-  <div class="two-col" style="margin-top:40px">
-    <div>
-      <div class="col-head">🌾 Ингредиенты</div>
-      <div class="ingredients-list">
-        <div class="ingredient">
-          <div class="ing-name">Мука пшеничная (в/с)</div>
-          <div style="display:flex;gap:12px;align-items:center">
-            <div class="ing-qty">700 г</div>
-            <button class="ing-where" onclick="showWhere('Мука пшеничная в/с', 'flour')">Где купить?</button>
-          </div>
-        </div>
-        <div class="ingredient">
-          <div class="ing-name">Дрожжи сухие</div>
-          <div style="display:flex;gap:12px;align-items:center">
-            <div class="ing-qty">10 г</div>
-            <button class="ing-where" onclick="showWhere('Дрожжи сухие кошерные', 'yeast')">Где купить?</button>
-          </div>
-        </div>
-        <div class="ingredient">
-          <div class="ing-name">Сахар</div>
-          <div style="display:flex;gap:12px;align-items:center">
-            <div class="ing-qty">60 г</div>
-            <button class="ing-where" onclick="showWhere('Сахар кошерный', 'sugar')">Где купить?</button>
-          </div>
-        </div>
-        <div class="ingredient">
-          <div class="ing-name">Соль</div>
-          <div class="ing-qty">10 г</div>
-        </div>
-        <div class="ingredient">
-          <div class="ing-name">Яйца</div>
-          <div style="display:flex;gap:12px;align-items:center">
-            <div class="ing-qty">3 шт</div>
-            <button class="ing-where" onclick="showWhere('Яйца кошерные', 'eggs')">Где купить?</button>
-          </div>
-        </div>
-        <div class="ingredient">
-          <div class="ing-name">Масло растительное</div>
-          <div style="display:flex;gap:12px;align-items:center">
-            <div class="ing-qty">80 мл</div>
-            <button class="ing-where" onclick="showWhere('Масло растительное кошерное', 'oil')">Где купить?</button>
-          </div>
-        </div>
-        <div class="ingredient">
-          <div class="ing-name">Вода тёплая</div>
-          <div class="ing-qty">280 мл</div>
-        </div>
-        <div class="ingredient">
-          <div class="ing-name">Кунжут (для посыпки)</div>
-          <div style="display:flex;gap:12px;align-items:center">
-            <div class="ing-qty">2 ст.л.</div>
-            <button class="ing-where" onclick="showWhere('Кунжут', 'sesame')">Где купить?</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="col-head">📋 Приготовление</div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num"></div>
-          <div class="step-text"><strong>Опара.</strong> Растворите дрожжи и 1 ч.л. сахара в тёплой воде. Оставьте на 10 минут до появления пены.</div>
-        </div>
-        <div class="step">
-          <div class="step-num"></div>
-          <div class="step-text"><strong>Тесто.</strong> Смешайте муку, соль, сахар. Добавьте опару, 2 яйца и масло. Вымешивайте 10 минут до гладкости.</div>
-        </div>
-        <div class="step">
-          <div class="step-num"></div>
-          <div class="step-text"><strong>Подъём.</strong> Накройте тесто плёнкой. Оставьте в тёплом месте на <strong>1.5–2 часа</strong> — объём должен удвоиться.</div>
-        </div>
-        <div class="step">
-          <div class="step-num"></div>
-          <div class="step-text"><strong>Плетение.</strong> Разделите тесто на 6 равных частей. Сплетите по 3 жгута в косу. Выложите на противень.</div>
-        </div>
-        <div class="step">
-          <div class="step-num"></div>
-          <div class="step-text"><strong>Расстойка.</strong> Накройте полотенцем, оставьте ещё на <strong>40 минут</strong>. Смажьте взбитым яйцом, посыпьте кунжутом.</div>
-        </div>
-        <div class="step">
-          <div class="step-num"></div>
-          <div class="step-text"><strong>Выпечка.</strong> Духовка <strong>180°С</strong>, 25–30 минут до золотистой корочки. Готово, когда постукивание по дну звучит глухо.</div>
-        </div>
-      </div>
-    </div>
+<!-- ALL RECIPES -->
+<section id="recipes">
+  <div class="section-head">
+    <div class="section-label">Коллекция</div>
+    <h2 class="section-title">Все <em>рецепты</em></h2>
+    <div class="divider"></div>
   </div>
+  <div class="recipe-grid" id="recipeGrid"></div>
 </section>
 
 <!-- SUBMIT RECIPE -->
@@ -429,16 +357,17 @@
       <h2>Поделитесь<br>своим <em>рецептом</em></h2>
       <p>У вас есть семейный кошерный рецепт? Отправьте нам — мы опубликуем его на сайте с вашим именем.</p>
     </div>
-    <div class="submit-form">
+    <form class="submit-form" id="submitForm">
       <div class="form-row">
-        <input class="form-input" placeholder="Ваше имя" />
-        <input class="form-input" placeholder="WhatsApp / Email" />
+        <input class="form-input" id="s_name" placeholder="Ваше имя" required />
+        <input class="form-input" id="s_contact" placeholder="WhatsApp / Email" required />
       </div>
-      <input class="form-input" placeholder="Название рецепта" />
-      <textarea class="form-input" placeholder="Расскажите о рецепте, ингредиентах и приготовлении..."></textarea>
-      <button class="btn-send" onclick="submitRecipe()">Отправить рецепт →</button>
+      <input class="form-input" id="s_title" placeholder="Название рецепта" required />
+      <textarea class="form-input" id="s_body" placeholder="Расскажите о рецепте, ингредиентах и приготовлении..." required></textarea>
+      <button class="btn-send" type="submit" id="s_btn">Отправить рецепт →</button>
+      <div class="form-status" id="s_status"></div>
       <div class="form-note">После проверки рецепт появится на сайте</div>
-    </div>
+    </form>
   </div>
 </section>
 
@@ -448,63 +377,251 @@
 </footer>
 
 <!-- WHERE TO BUY MODAL -->
-<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+<div class="modal-overlay" id="modal">
   <div class="modal">
-    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <button class="modal-close" id="modalClose">✕</button>
     <div class="modal-title">Где купить</div>
     <div class="modal-product" id="modal-product">—</div>
     <div class="store-list" id="store-list"></div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="js/demo-data.js"></script>
+<script src="js/db.js"></script>
 <script>
-const STORES = {
-  flour: [
-    {name:'Магазин «Мизрахи»',addr:'ул. Назарбаева, 44',badge:'Кошер',kosher:true},
-    {name:'Green Mall',addr:'пр. Достык, 111',badge:'Супермаркет',kosher:false},
-    {name:'Magnum',addr:'ул. Байтурсынова, 141',badge:'Супермаркет',kosher:false},
-  ],
-  yeast: [
-    {name:'Магазин «Мизрахи»',addr:'ул. Назарбаева, 44',badge:'Кошер',kosher:true},
-    {name:'Green Mall',addr:'пр. Достык, 111',badge:'Супермаркет',kosher:false},
-  ],
-  eggs: [
-    {name:'Магазин «Мизрахи»',addr:'ул. Назарбаева, 44',badge:'Кошер ✓',kosher:true},
-    {name:'Рынок Зелёный базар',addr:'ул. Зенкова, 59',badge:'Рынок',kosher:false},
-  ],
-  oil: [
-    {name:'Магазин «Мизрахи»',addr:'ул. Назарбаева, 44',badge:'Кошер',kosher:true},
-    {name:'Small',addr:'пр. Аль-Фараби, 77',badge:'Супермаркет',kosher:false},
-  ],
-  sesame: [
-    {name:'Рынок Зелёный базар',addr:'ул. Зенкова, 59',badge:'Рынок',kosher:false},
-    {name:'Магазин «Мизрахи»',addr:'ул. Назарбаева, 44',badge:'Кошер',kosher:true},
-  ],
-  sugar: [
-    {name:'Любой супермаркет',addr:'Алматы',badge:'Везде',kosher:false},
-  ],
-};
+(function(){
+  'use strict';
 
-function showWhere(product, key) {
-  const stores = STORES[key] || [];
-  document.getElementById('modal-product').textContent = product;
-  document.getElementById('store-list').innerHTML = stores.map(s=>`
-    <div class="store">
-      <div>
-        <div class="store-name">${s.name}</div>
-        <div class="store-addr">${s.addr}</div>
-      </div>
-      <div class="store-badge ${s.kosher?'kosher-store':''}">${s.badge}</div>
-    </div>
-  `).join('');
-  document.getElementById('modal').classList.add('open');
-}
-function closeModal(e){ if(e.target===document.getElementById('modal')) closeModalBtn(); }
-function closeModalBtn(){ document.getElementById('modal').classList.remove('open'); }
+  var recipes = [];
+  var stores = [];
+  var current = null;
 
-function submitRecipe(){
-  alert('Спасибо! Ваш рецепт отправлен на проверку. Мы свяжемся с вами в WhatsApp.');
-}
+  function esc(value){
+    return String(value == null ? '' : value)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function minutesLabel(min){
+    min = Number(min) || 0;
+    if (min < 60) return min + ' мин';
+    var h = Math.floor(min / 60), m = min % 60;
+    return m ? h + ' ч ' + m + ' м' : h + ' ч';
+  }
+
+  // "Опара. Растворите дрожжи…" → выделяем ведущее слово жирным
+  function renderStep(text){
+    var m = String(text).match(/^([^.]{2,24}\.)\s+([\s\S]+)$/);
+    return m ? '<strong>' + esc(m[1]) + '</strong> ' + esc(m[2]) : esc(text);
+  }
+
+  // ---------- отрисовка рецепта ----------
+  function renderRecipe(recipe){
+    current = recipe;
+
+    document.getElementById('heroEmoji').textContent = recipe.emoji;
+    document.getElementById('heroTitle').textContent = recipe.title;
+    document.getElementById('heroTagline').textContent =
+      [recipe.occasion, recipe.category].filter(Boolean).join(' · ') || 'Кошерный рецепт';
+    document.getElementById('recipeSectionTitle').innerHTML =
+      esc(recipe.title) + ' — <em>' + esc(recipe.category || 'рецепт') + '</em>';
+
+    var chips = [recipe.kosher, recipe.category, recipe.occasion]
+      .filter(Boolean)
+      .map(function(v, i){
+        return '<span class="meta-chip' + (i === 0 ? ' kosher' : '') + '">' +
+               (i === 0 ? '✡ ' : '') + esc(v) + '</span>';
+      }).join('');
+
+    var stats = [
+      { val: minutesLabel(recipe.time_minutes), key: 'Время' },
+      { val: recipe.yield_text || '—', key: 'Выход' },
+      { val: recipe.servings || '—', key: 'Порций' },
+    ].map(function(s){
+      return '<div class="stat"><div class="stat-val">' + esc(s.val) + '</div>' +
+             '<div class="stat-key">' + esc(s.key) + '</div></div>';
+    }).join('');
+
+    var ingredients = recipe.ingredients.map(function(ing, idx){
+      var where = ing.key
+        ? '<button class="ing-where" data-ing="' + idx + '">Где купить?</button>'
+        : '';
+      return '<div class="ingredient">' +
+               '<div class="ing-name">' + esc(ing.name) + '</div>' +
+               '<div class="ing-side">' +
+                 '<div class="ing-qty">' + esc(ing.qty) + '</div>' + where +
+               '</div>' +
+             '</div>';
+    }).join('') || '<div class="state-msg">Ингредиенты не указаны</div>';
+
+    var steps = recipe.steps.map(function(step){
+      return '<div class="step"><div class="step-num"></div>' +
+             '<div class="step-text">' + renderStep(step) + '</div></div>';
+    }).join('') || '<div class="state-msg">Шаги не указаны</div>';
+
+    document.getElementById('recipeHost').innerHTML =
+      '<div class="recipe-featured">' +
+        '<div class="recipe-img">' + esc(recipe.emoji) + '</div>' +
+        '<div class="recipe-body"><div>' +
+          '<div class="recipe-meta">' + chips + '</div>' +
+          '<h3 class="recipe-title">' + esc(recipe.title) + '</h3>' +
+          '<p class="recipe-desc">' + esc(recipe.description) + '</p>' +
+          '<div class="recipe-stats">' + stats + '</div>' +
+          (recipe.author ? '<div class="recipe-author">Автор: ' + esc(recipe.author) + '</div>' : '') +
+        '</div></div>' +
+      '</div>' +
+      '<div class="two-col" style="margin-top:40px">' +
+        '<div><div class="col-head">🌾 Ингредиенты</div>' +
+          '<div class="ingredients-list">' + ingredients + '</div></div>' +
+        '<div><div class="col-head">📋 Приготовление</div>' +
+          '<div class="steps">' + steps + '</div></div>' +
+      '</div>';
+
+    document.getElementById('heroCta').textContent = recipe.emoji + ' Рецепт: ' + recipe.title;
+
+    Array.prototype.forEach.call(document.querySelectorAll('.card'), function(card){
+      card.classList.toggle('current', card.getAttribute('data-slug') === recipe.slug);
+    });
+
+    document.title = recipe.title + ' — Кошерные рецепты Алматы';
+  }
+
+  function renderGrid(){
+    document.getElementById('recipeGrid').innerHTML = recipes.map(function(r){
+      return '<button class="card" data-slug="' + esc(r.slug) + '">' +
+               '<div class="card-emoji">' + esc(r.emoji) + '</div>' +
+               '<div class="card-title">' + esc(r.title) + '</div>' +
+               '<div class="card-meta">' +
+                 esc([r.occasion, r.category, minutesLabel(r.time_minutes)].filter(Boolean).join(' · ')) +
+               '</div>' +
+               '<div class="card-desc">' + esc((r.description || '').slice(0, 90)) +
+                 ((r.description || '').length > 90 ? '…' : '') + '</div>' +
+             '</button>';
+    }).join('');
+  }
+
+  function selectSlug(slug, push){
+    var found = recipes.filter(function(r){ return r.slug === slug; })[0];
+    if (!found) return;
+    renderRecipe(found);
+    if (push && window.history && history.pushState) {
+      history.pushState({ slug: slug }, '', '?r=' + encodeURIComponent(slug));
+    }
+  }
+
+  // ---------- модалка "Где купить" ----------
+  function showWhere(product, key){
+    var matches = stores.filter(function(s){
+      return (s.categories || []).indexOf(key) !== -1;
+    });
+    if (!matches.length) matches = stores.slice(0, 3);
+
+    document.getElementById('modal-product').textContent = product;
+    document.getElementById('store-list').innerHTML = matches.map(function(s){
+      return '<div class="store"><div>' +
+               '<div class="store-name">' + esc(s.name) + '</div>' +
+               '<div class="store-addr">' + esc(s.address) + '</div>' +
+             '</div>' +
+             '<div class="store-badge' + (s.is_kosher ? ' kosher-store' : '') + '">' +
+               esc(s.badge) + '</div></div>';
+    }).join('') || '<div class="state-msg">Магазины пока не добавлены</div>';
+
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+
+  // ---------- события ----------
+  document.getElementById('recipeHost').addEventListener('click', function(e){
+    var btn = e.target.closest('.ing-where');
+    if (!btn || !current) return;
+    var ing = current.ingredients[Number(btn.getAttribute('data-ing'))];
+    if (ing) showWhere(ing.name, ing.key);
+  });
+
+  document.getElementById('recipeGrid').addEventListener('click', function(e){
+    var card = e.target.closest('.card');
+    if (!card) return;
+    selectSlug(card.getAttribute('data-slug'), true);
+    document.getElementById('recipe').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modal').addEventListener('click', function(e){
+    if (e.target === this) closeModal();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') closeModal();
+  });
+  window.addEventListener('popstate', function(){
+    var slug = new URLSearchParams(location.search).get('r');
+    if (slug) selectSlug(slug, false);
+  });
+
+  // ---------- форма "Поделиться рецептом" ----------
+  document.getElementById('submitForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn = document.getElementById('s_btn');
+    var status = document.getElementById('s_status');
+    btn.disabled = true;
+    status.className = 'form-status';
+    status.textContent = 'Отправляем…';
+
+    DB.createSubmission({
+      name: document.getElementById('s_name').value,
+      contact: document.getElementById('s_contact').value,
+      title: document.getElementById('s_title').value,
+      body: document.getElementById('s_body').value,
+    }).then(function(){
+      status.className = 'form-status ok';
+      status.textContent = DB.isDemo
+        ? '✓ Спасибо! (демо-режим: заявка сохранена только в этом браузере)'
+        : '✓ Спасибо! Рецепт отправлен на проверку — мы свяжемся с вами.';
+      document.getElementById('submitForm').reset();
+    }).catch(function(err){
+      status.className = 'form-status err';
+      status.textContent = 'Не удалось отправить: ' + err.message;
+    }).then(function(){
+      btn.disabled = false;
+    });
+  });
+
+  // ---------- загрузка ----------
+  if (DB.isDegraded) {
+    document.getElementById('demoBanner').innerHTML =
+      '⚠️ <em>Нет связи с базой</em> · библиотека Supabase не загрузилась — показаны демо-данные';
+  } else if (DB.isDemo) {
+    document.getElementById('demoBanner').innerHTML =
+      '🧪 <em>Демо-режим</em> · Supabase не подключён — данные хранятся в этом браузере';
+  }
+
+  Promise.all([DB.listPublished(), DB.listStores()]).then(function(res){
+    recipes = res[0];
+    stores = res[1];
+
+    if (!recipes.length) {
+      document.getElementById('recipeSectionTitle').innerHTML = 'Рецептов <em>пока нет</em>';
+      document.getElementById('recipeHost').innerHTML =
+        '<div class="state-msg">Ни одного опубликованного рецепта. ' +
+        'Добавьте первый в <a href="admin.html" style="color:var(--honey)">редакторе</a>.</div>';
+      return;
+    }
+
+    renderGrid();
+
+    var wanted = new URLSearchParams(location.search).get('r');
+    var start = recipes.filter(function(r){ return r.slug === wanted; })[0] ||
+                recipes.filter(function(r){ return r.featured; })[0] ||
+                recipes[0];
+    renderRecipe(start);
+  }).catch(function(err){
+    document.getElementById('recipeSectionTitle').innerHTML = 'Ошибка <em>загрузки</em>';
+    document.getElementById('recipeHost').innerHTML =
+      '<div class="state-msg">Не удалось загрузить рецепты: ' + esc(err.message) + '</div>';
+  });
+})();
 </script>
 </body>
 </html>
